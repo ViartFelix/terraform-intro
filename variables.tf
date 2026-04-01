@@ -13,7 +13,7 @@ variable "env" {
 variable "location" {
   description = "Région Azure pour le déploiement"
   type        = string
-  default     = "westeurope"
+  default     = "germanywestcentral"
 }
 
 locals {

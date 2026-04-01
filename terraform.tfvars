@@ -1,3 +1,3 @@
-project  = "demo"
+project  = "raphvnet"
 env      = "dev"
-location = "westeurope"
+location = "germanywestcentral"
