@@ -1,15 +1,15 @@
 resource "azurerm_resource_group" "raph-rg-td-webapp" {
-    name = "terraform-webapp-raph"
-    location = "germanywestcentral"
+    name = var.rgname
+    location = var.location
     tags = {
         test = "testTag"
     }
 }
 
 resource "azurerm_storage_account" "raph-storage-account" {
-    name                     = "raphstorageaccount"
+    name                     = local.saname
     resource_group_name      = azurerm_resource_group.raph-rg-td-webapp.name
-    location                 = "germanywestcentral"
+    location                 = var.location
     account_tier             = "Standard"
     account_replication_type = "GRS"
 
@@ -19,44 +19,57 @@ resource "azurerm_storage_account" "raph-storage-account" {
 }
 
 resource "azurerm_storage_container" "raph-storage-container" {
-  name                  = "content"
+  name                  = local.scname
   storage_account_id    = azurerm_storage_account.raph-storage-account.id
   container_access_type = "private"
 }
 
-resource "azurerm_storage_blob" "raph-storage-blob" {
-  name                   = "my-awesome-content.zip"
-  storage_account_name   = azurerm_storage_account.raph-storage-account.name
-  storage_container_name = azurerm_storage_container.raph-storage-container.name
-  type                   = "Block"
-  source                 = "some-local-file.zip"
-}
-
 resource "azurerm_storage_share" "raph-storage-share" {
-    name               = "sharename"
+    name               = local.shname
     storage_account_id = azurerm_storage_account.raph-storage-account.id
     quota              = 50
 }
 
-resource "azurerm_storage_share_file" "raph-storage-share-file" {
-    storage_share_id = azurerm_storage_share.raph-storage-share.id
-    name              = "my-awesome-content.zip"
-    source            = "some-local-file.zip"
-}
-
-resource "azurerm_service_plan" "raph-service-plan" {
-  name                = "raph-service-plan"
-  resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
+resource "azurerm_app_service_plan" "raph-app-service-plan" {
+  name                = local.aspname
   location            = azurerm_resource_group.raph-rg-td-webapp.location
-  sku_name            = "P1v2"
-  os_type             = "Windows"
+  resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
+
+  sku {
+    tier = "Standard"
+    size = "S1"
+  }
 }
 
-resource "azurerm_windows_web_app" "raph-windows-web-app" {
-  name                = "raph-windows-web-app"
+resource "azurerm_app_service" "raph-app-service" {
+  name                = local.asname
+  location            = azurerm_resource_group.raph-rg-td-webapp.location
   resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
-  location            = azurerm_service_plan.raph-service-plan.location
-  service_plan_id     = azurerm_service_plan.raph-service-plan.id
+  app_service_plan_id = azurerm_app_service_plan.raph-app-service-plan.id
 
   site_config {}
+}
+
+resource "azurerm_container_group" "raph-windows-c-group" {
+  name                = "raph-nginx-group"
+  location            = azurerm_resource_group.raph-rg-td-webapp.location
+  resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
+  os_type             = "Linux"
+  restart_policy      = "Always"
+
+  container {
+    name   = var.nginx_container
+    image  = "nginx:latest"
+    cpu    = "0.5"
+    memory = "1.0"
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+  }
+
+  tags = {
+    environment = "staging"
+  }
 }
