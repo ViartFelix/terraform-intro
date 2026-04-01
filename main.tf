@@ -50,7 +50,7 @@ resource "azurerm_app_service" "raph-app-service" {
   site_config {}
 }
 
-resource "azurerm_container_group" "raph-windows-c-group" {
+resource "azurerm_container_group" "raph-c-group" {
   name                = "raph-nginx-group"
   location            = azurerm_resource_group.raph-rg-td-webapp.location
   resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
