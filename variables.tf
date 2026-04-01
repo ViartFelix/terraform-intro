@@ -1,24 +1,23 @@
-variable "rgname" {
-  description = "Name of the resource group"
+variable "project" {
+  description = "Nom du projet"
   type        = string
-  default     = "raph-rg-td-webapp"
+  default     = "demo"
+}
+
+variable "env" {
+  description = "Environnement de déploiement"
+  type        = string
+  default     = "dev"
 }
 
 variable "location" {
-  description = "Azure location for deployment"
+  description = "Région Azure pour le déploiement"
   type        = string
-  default     = "germanywestcentral"
+  default     = "westeurope"
 }
 
 locals {
-  shname = "sharename"
-  scname = "content"
-  saname = "raphstorageaccount"
-  aspname = "raph-app-service-plan"
-  asname = "raph-app-service"
-
-  nginx_container = "nginx"
-  nginx_image = "nginx:latest"
-  nginx_cpu = "0.5"
-  nginx_memory = "1.0"
+  rg_name  = "${var.project}-${upper(var.env)}-RG"
+  sta_name = lower("${var.project}${var.env}sta")
+  vnet_name = "${var.project}-${var.env}-VNET"
 }

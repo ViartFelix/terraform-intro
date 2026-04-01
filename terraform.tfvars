@@ -1,1 +1,3 @@
-rgname = "raph-rg-td-webapp-renamed"
+project  = "demo"
+env      = "dev"
+location = "westeurope"

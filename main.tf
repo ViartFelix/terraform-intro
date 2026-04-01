@@ -1,75 +1,34 @@
-resource "azurerm_resource_group" "raph-rg-td-webapp" {
-    name = var.rgname
-    location = var.location
-    tags = {
-        test = "testTag"
-    }
-}
-
-resource "azurerm_storage_account" "raph-storage-account" {
-    name                     = local.saname
-    resource_group_name      = azurerm_resource_group.raph-rg-td-webapp.name
-    location                 = var.location
-    account_tier             = "Standard"
-    account_replication_type = "GRS"
-
-    tags = {
-        environment = "staging"
-    }
-}
-
-resource "azurerm_storage_container" "raph-storage-container" {
-  name                  = local.scname
-  storage_account_id    = azurerm_storage_account.raph-storage-account.id
-  container_access_type = "private"
-}
-
-resource "azurerm_storage_share" "raph-storage-share" {
-    name               = local.shname
-    storage_account_id = azurerm_storage_account.raph-storage-account.id
-    quota              = 50
-}
-
-resource "azurerm_app_service_plan" "raph-app-service-plan" {
-  name                = local.aspname
-  location            = azurerm_resource_group.raph-rg-td-webapp.location
-  resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
-
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
-}
-
-resource "azurerm_app_service" "raph-app-service" {
-  name                = local.asname
-  location            = azurerm_resource_group.raph-rg-td-webapp.location
-  resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
-  app_service_plan_id = azurerm_app_service_plan.raph-app-service-plan.id
-
-  site_config {}
-}
-
-resource "azurerm_container_group" "raph-c-group" {
-  name                = "raph-nginx-group"
-  location            = azurerm_resource_group.raph-rg-td-webapp.location
-  resource_group_name = azurerm_resource_group.raph-rg-td-webapp.name
-  os_type             = "Linux"
-  restart_policy      = "Always"
-
-  container {
-    name   = local.nginx_container
-    image  = local.nginx_image
-    cpu    = local.nginx_cpu
-    memory = local.nginx_memory
-
-    ports {
-      port     = 80
-      protocol = "TCP"
-    }
-  }
+resource "azurerm_resource_group" "rg" {
+  name     = local.rg_name
+  location = var.location
 
   tags = {
-    environment = "staging"
+    project = var.project
+    environment = var.env
+  }
+}
+
+resource "azurerm_storage_account" "sta" {
+  name                     = local.sta_name
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  tags = {
+    project = var.project
+    environment = var.env
+  }
+}
+
+resource "azurerm_virtual_network" "vnet" {
+  name                = local.vnet_name
+  address_space       = ["10.0.0.0/16"]
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = {
+    project = var.project
+    environment = var.env
   }
 }
