@@ -10,16 +10,15 @@ variable "location" {
   default     = "germanywestcentral"
 }
 
-variable "nginx_container" {
-  description = "Name of the storage container"
-  type        = string
-  default     = "nginx"
-}
-
 locals {
   shname = "sharename"
   scname = "content"
   saname = "raphstorageaccount"
   aspname = "raph-app-service-plan"
   asname = "raph-app-service"
+
+  nginx_container = "nginx"
+  nginx_image = "nginx:latest"
+  nginx_cpu = "0.5"
+  nginx_memory = "1.0"
 }

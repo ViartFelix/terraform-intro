@@ -58,10 +58,10 @@ resource "azurerm_container_group" "raph-windows-c-group" {
   restart_policy      = "Always"
 
   container {
-    name   = var.nginx_container
-    image  = "nginx:latest"
-    cpu    = "0.5"
-    memory = "1.0"
+    name   = local.nginx_container
+    image  = local.nginx_image
+    cpu    = local.nginx_cpu
+    memory = local.nginx_memory
 
     ports {
       port     = 80
