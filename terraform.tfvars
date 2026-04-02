@@ -1,0 +1,7 @@
+resource_group_name = "test"
+location = "spaincentral"
+project = "demo"
+virtual_network_name = "vnettest"
+webappname = "demoterraform"
+spname = "ASP"
+env = "prd"
