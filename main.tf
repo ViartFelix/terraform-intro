@@ -1,21 +1,21 @@
 resource "azurerm_resource_group" "rg-viart-we-001" {
-    name = var.rgname
-    location = var.location
-    tags = {
-        test = "testTag"
-    }
+  name     = var.rgname
+  location = var.location
+  tags = {
+    test = "testTag"
+  }
 }
 
 resource "azurerm_storage_account" "ds-viart-we-001" {
-    name                     = local.saname
-    resource_group_name      = azurerm_resource_group.rg-viart-we-001.name
-    location                 = var.location
-    account_tier             = "Standard"
-    account_replication_type = "GRS"
+  name                     = local.saname
+  resource_group_name      = azurerm_resource_group.rg-viart-we-001.name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
 
-    tags = {
-        environment = "staging"
-    }
+  tags = {
+    environment = "staging"
+  }
 }
 
 resource "azurerm_storage_container" "ds-container-viart-we-001" {
@@ -24,53 +24,30 @@ resource "azurerm_storage_container" "ds-container-viart-we-001" {
   container_access_type = "private"
 }
 
-resource "azurerm_app_service_plan" "sp-viart-we-001" {
+resource "azurerm_service_plan" "sp-viart-we-001" {
   name                = local.aspname
   location            = azurerm_resource_group.rg-viart-we-001.location
   resource_group_name = azurerm_resource_group.rg-viart-we-001.name
-
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
+  os_type             = "Linux"
+  sku_name            = "S1"
 }
 
-resource "azurerm_app_service" "raph-app-service" {
+resource "azurerm_linux_web_app" "app-viart-we-001" {
   name                = local.asname
   location            = azurerm_resource_group.rg-viart-we-001.location
   resource_group_name = azurerm_resource_group.rg-viart-we-001.name
-  app_service_plan_id = azurerm_app_service_plan.sp-viart-we-001.id
+  service_plan_id     = azurerm_service_plan.sp-viart-we-001.id
 
-  site_config {}
-}
-
-resource "azurerm_container_group" "app-viart-we-001" {
-  name                = "nginx-viart-we-001"
-  location            = azurerm_resource_group.rg-viart-we-001.location
-  resource_group_name = azurerm_resource_group.rg-viart-we-001.name
-  os_type             = "Linux"
-  restart_policy      = "Always"
-
-  container {
-    name   = local.nginx_container
-    image  = local.nginx_image
-    cpu    = local.nginx_cpu
-    memory = local.nginx_memory
-
-    ports {
-      port     = 80
-      protocol = "TCP"
+  site_config {
+    application_stack {
+      docker_image_name   = local.docker_image
+      docker_registry_url = local.docker_registry_url
     }
   }
-
-  tags = {
-    environment = "staging"
-  }
 }
 
-
 resource "azurerm_postgresql_flexible_server" "pg-viart-we-001" {
-  name                          = "pg-viart-we-001-psqlflexibleserver"
+  name                          = local.pgflex_name
   resource_group_name           = azurerm_resource_group.rg-viart-we-001.name
   location                      = azurerm_resource_group.rg-viart-we-001.location
   version                       = local.pgflex_version
@@ -83,23 +60,7 @@ resource "azurerm_postgresql_flexible_server" "pg-viart-we-001" {
   storage_tier = local.pgflex_storage_tier
 }
 
-resource "azurerm_postgresql_server" "pg-viart-we-001" {
-  name                = "pg-viart-we-001-psql-db"
-  location            = azurerm_resource_group.rg-viart-we-001.location
-  resource_group_name = azurerm_resource_group.rg-viart-we-001.name
-
-  administrator_login          = local.pgdb_login
-  administrator_login_password = local.pgdb_password
-
-  sku_name   = local.pgdb_sku_name
-  version    = local.pgdb_version
-  storage_mb = local.pgdb_storage_mb
-
-  backup_retention_days        = local.pgdb_backup_retention_days
-  geo_redundant_backup_enabled = local.pgdb_geo_redundant_backup_enabled
-  auto_grow_enabled            = local.pgdb_auto_grow_enabled
-
-  public_network_access_enabled    = local.pgdb_public_network_access_enabled
-  ssl_enforcement_enabled          = local.pgdb_ssl_enforcement_enabled
-  ssl_minimal_tls_version_enforced = local.pgdb_ssl_minimal_tls_version_enforced
+resource "azurerm_postgresql_flexible_server_database" "db-viart-we-001" {
+  name      = var.dbname
+  server_id = azurerm_postgresql_flexible_server.pg-viart-we-001.id
 }

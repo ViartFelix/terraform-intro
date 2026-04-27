@@ -1,1 +1,2 @@
-rgname = "rg-viart-we-001"
+rgname = "RG-VIART-WE-001"
+dbname = "viartdb"
