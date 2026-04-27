@@ -39,13 +39,13 @@ resource "azurerm_app_service" "raph-app-service" {
   name                = local.asname
   location            = azurerm_resource_group.rg-viart-we-001.location
   resource_group_name = azurerm_resource_group.rg-viart-we-001.name
-  app_service_plan_id = azurerm_app_service_plan.raph-app-service-plan.id
+  app_service_plan_id = azurerm_app_service_plan.sp-viart-we-001.id
 
   site_config {}
 }
 
-resource "azurerm_container_group" "raph-c-group" {
-  name                = "raph-nginx-group"
+resource "azurerm_container_group" "app-viart-we-001" {
+  name                = "nginx-viart-we-001"
   location            = azurerm_resource_group.rg-viart-we-001.location
   resource_group_name = azurerm_resource_group.rg-viart-we-001.name
   os_type             = "Linux"
@@ -73,33 +73,33 @@ resource "azurerm_postgresql_flexible_server" "pg-viart-we-001" {
   name                          = "pg-viart-we-001-psqlflexibleserver"
   resource_group_name           = azurerm_resource_group.rg-viart-we-001.name
   location                      = azurerm_resource_group.rg-viart-we-001.location
-  version                       = "12"
-  public_network_access_enabled = false
-  administrator_login           = "psqladmin"
-  administrator_password        = "H@Sh1CoR3!"
-  zone                          = "1"
+  version                       = local.pgflex_version
+  public_network_access_enabled = local.pgflex_public_network
+  administrator_login           = local.pgflex_admin_login
+  administrator_password        = local.pgflex_admin_password
+  zone                          = local.pgflex_zone
 
-  storage_mb   = 32768
-  storage_tier = "P4"
+  storage_mb   = local.pgflex_storage_mb
+  storage_tier = local.pgflex_storage_tier
 }
 
 resource "azurerm_postgresql_server" "pg-viart-we-001" {
-  name                = "john"
+  name                = "pg-viart-we-001-psql-db"
   location            = azurerm_resource_group.rg-viart-we-001.location
   resource_group_name = azurerm_resource_group.rg-viart-we-001.name
 
-  administrator_login          = "psqladmin"
-  administrator_login_password = "H@Sh1CoR3!"
+  administrator_login          = local.pgdb_login
+  administrator_login_password = local.pgdb_password
 
-  sku_name   = "GP_Gen5_4"
-  version    = "11"
-  storage_mb = 640000
+  sku_name   = local.pgdb_sku_name
+  version    = local.pgdb_version
+  storage_mb = local.pgdb_storage_mb
 
-  backup_retention_days        = 7
-  geo_redundant_backup_enabled = true
-  auto_grow_enabled            = true
+  backup_retention_days        = local.pgdb_backup_retention_days
+  geo_redundant_backup_enabled = local.pgdb_geo_redundant_backup_enabled
+  auto_grow_enabled            = local.pgdb_auto_grow_enabled
 
-  public_network_access_enabled    = false
-  ssl_enforcement_enabled          = true
-  ssl_minimal_tls_version_enforced = "TLS1_2"
+  public_network_access_enabled    = local.pgdb_public_network_access_enabled
+  ssl_enforcement_enabled          = local.pgdb_ssl_enforcement_enabled
+  ssl_minimal_tls_version_enforced = local.pgdb_ssl_minimal_tls_version_enforced
 }
