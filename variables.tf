@@ -1,7 +1,7 @@
 variable "rgname" {
   description = "Name of the resource group"
   type        = string
-  default     = "raph-rg-td-webapp"
+  default     = "rg-viart-we-001"
 }
 
 variable "location" {
@@ -13,9 +13,9 @@ variable "location" {
 locals {
   shname = "sharename"
   scname = "content"
-  saname = "raphstorageaccount"
-  aspname = "raph-app-service-plan"
-  asname = "raph-app-service"
+  saname = "viartstorageaccount"
+  aspname = "viart-app-service-plan"
+  asname = "viart-app-service"
 
   nginx_container = "nginx"
   nginx_image = "nginx:latest"

@@ -1,1 +1,1 @@
-rgname = "raph-rg-td-webapp-renamed"
+rgname = "rg-viart-we-001"
